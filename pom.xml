@@ -13,6 +13,17 @@
   <name>SSH CLI client authenticator</name>
   <description>Use the SSH private key on the client to authenticate the CLI clients</description>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.jenkins-ci.tools</groupId>
+        <artifactId>maven-hpi-plugin</artifactId>
+        <version>1.71</version>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>org.jenkins-ci.modules</groupId>
