@@ -28,7 +28,7 @@
     <dependency>
       <groupId>org.jenkins-ci.main</groupId>
       <artifactId>jenkins-core</artifactId>
-      <version>1.419-20110623.221323-2</version>
+      <version>1.419</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
