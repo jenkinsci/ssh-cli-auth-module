@@ -27,6 +27,13 @@ public class UserPropertyImpl extends UserProperty {
         this.authorizedKeys = authorizedKeys;
     }
 
+    /**
+     * Checks if this user has the given public key in his {@link #authorizedKeys}.
+     */
+    public boolean has(PublicKey pk) {
+        return isAuthorizedKey(getPublicKeySignature(pk));
+    }
+
     public boolean isAuthorizedKey(String sig) {
         try {
             final BufferedReader r = new BufferedReader(new StringReader(authorizedKeys));
