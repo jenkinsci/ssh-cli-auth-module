@@ -3,6 +3,7 @@ package org.jenkinsci.main.modules.cli.auth.ssh;
 import hudson.cli.CLI;
 import hudson.cli.CLICommand;
 import hudson.model.User;
+import hudson.remoting.Callable;
 import org.jvnet.hudson.test.HudsonTestCase;
 import org.jvnet.hudson.test.TestExtension;
 
@@ -33,9 +34,17 @@ public class TheTest extends HudsonTestCase {
         assertEquals(PUBLIC_KEY, foo.getProperty(UserPropertyImpl.class).authorizedKeys);
 
         CLI cli = new CLI(getURL());
-        cli.authenticate(Collections.singleton(CLI.loadKey(PRIVATE_KEY)));
-        assertEquals(0,cli.execute("test"));
-        cli.close();
+        try {
+            cli.authenticate(Collections.singleton(CLI.loadKey(PRIVATE_KEY)));
+            assertEquals(0, cli.execute("test"));
+
+            // closures executed with this channel should automatically carry the credential
+            // now that it's authenticated
+            cli.upgrade();
+            assertEquals("foo", cli.getChannel().call(new GetCurrentUser()));
+        } finally {
+            cli.close();
+        }
     }
 
     private static final String PUBLIC_KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAr+ZaQ/SI8xIr5BtMCh7gizoH/cVzEi8tCxwvHOu5eELzxl1FBwUH5/pRzMI31w1+WlYXBCYQSvcWgpLlAZn7VaJYCxUE9K9gMxLPmk81fUec8sFr5hSj6cPL3hWdk4CgdJ0M2Q/GNJExvbDsiFMFb/p9jnrKhHQ47mhT4HpMLTE4fG5+AB3liJZhaUo9lbHfmhpmpps9o1tE1z7YcIO4ckvCklxF+04mVRjKur3lcezh2i4TXjMGmkDgU7pTrwf9OM9rDo5dSpsAK/dGWlBT01jhv69wOfUitcYENAK07Tgyoti3pEYD3b2ugxQ0fe0LqoxFa//O540PjMhxEbmuQQ== xxx@yyy";
@@ -68,4 +77,10 @@ public class TheTest extends HudsonTestCase {
             "Qob9zCG3CPQmu7I3dWp1rDUu2ZickE7rISRfo2N9TXWlkJ7ZjhSmQ2gnYgPQ6YGU\n" +
             "LUNVNqTdfk2S8M+BM94pRqVgLSHHvwnqmMdoe7Ul3h2fk9CtNIw=\n" +
             "-----END RSA PRIVATE KEY-----";
+
+    private static class GetCurrentUser implements Callable<String, Exception> {
+        public String call() throws Exception {
+            return User.current().getId();
+        }
+    }
 }

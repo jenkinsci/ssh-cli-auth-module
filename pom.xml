@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.417</version>
+    <version>1.448-SNAPSHOT</version>
   </parent>
 
   <groupId>org.jenkins-ci.modules</groupId>
@@ -28,7 +28,7 @@
     <dependency>
       <groupId>org.jenkins-ci.main</groupId>
       <artifactId>jenkins-core</artifactId>
-      <version>1.419</version>
+      <version>1.448-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
