@@ -18,7 +18,7 @@
       <plugin>
         <groupId>org.jenkins-ci.tools</groupId>
         <artifactId>maven-hpi-plugin</artifactId>
-        <version>1.71</version>
+        <version>1.79</version>
         <extensions>true</extensions>
       </plugin>
     </plugins>
@@ -28,7 +28,7 @@
     <dependency>
       <groupId>org.jenkins-ci.main</groupId>
       <artifactId>jenkins-core</artifactId>
-      <version>1.448-SNAPSHOT</version>
+      <version>1.448</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

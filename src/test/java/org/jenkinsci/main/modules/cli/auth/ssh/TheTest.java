@@ -4,10 +4,11 @@ import hudson.cli.CLI;
 import hudson.cli.CLICommand;
 import hudson.model.User;
 import hudson.remoting.Callable;
-import org.jvnet.hudson.test.HudsonTestCase;
-import org.jvnet.hudson.test.TestExtension;
 
 import java.util.Collections;
+
+import org.jvnet.hudson.test.HudsonTestCase;
+import org.jvnet.hudson.test.TestExtension;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -27,15 +28,23 @@ public class TheTest extends HudsonTestCase {
         }
     }
 
-    public void test1() throws Exception {
+    public void testRsa() throws Exception {
+        testRoundtrip(PRIVATE_RSA_KEY, PUBLIC_RSA_KEY);
+    }
+
+    public void testDsa() throws Exception {
+        testRoundtrip(PRIVATE_DSA_KEY, PUBLIC_DSA_KEY);
+    }
+
+    private void testRoundtrip(String privateKey, String publicKey) throws Exception {
         User foo = User.get("foo");
-        foo.addProperty(new UserPropertyImpl(PUBLIC_KEY));
+        foo.addProperty(new UserPropertyImpl(publicKey));
         configRoundtrip(foo);
-        assertEquals(PUBLIC_KEY, foo.getProperty(UserPropertyImpl.class).authorizedKeys);
+        assertEquals(publicKey, foo.getProperty(UserPropertyImpl.class).authorizedKeys);
 
         CLI cli = new CLI(getURL());
         try {
-            cli.authenticate(Collections.singleton(CLI.loadKey(PRIVATE_KEY)));
+            cli.authenticate(Collections.singleton(CLI.loadKey(privateKey)));
             assertEquals(0, cli.execute("test"));
 
             // closures executed with this channel should automatically carry the credential
@@ -47,9 +56,9 @@ public class TheTest extends HudsonTestCase {
         }
     }
 
-    private static final String PUBLIC_KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAr+ZaQ/SI8xIr5BtMCh7gizoH/cVzEi8tCxwvHOu5eELzxl1FBwUH5/pRzMI31w1+WlYXBCYQSvcWgpLlAZn7VaJYCxUE9K9gMxLPmk81fUec8sFr5hSj6cPL3hWdk4CgdJ0M2Q/GNJExvbDsiFMFb/p9jnrKhHQ47mhT4HpMLTE4fG5+AB3liJZhaUo9lbHfmhpmpps9o1tE1z7YcIO4ckvCklxF+04mVRjKur3lcezh2i4TXjMGmkDgU7pTrwf9OM9rDo5dSpsAK/dGWlBT01jhv69wOfUitcYENAK07Tgyoti3pEYD3b2ugxQ0fe0LqoxFa//O540PjMhxEbmuQQ== xxx@yyy";
+    private static final String PUBLIC_RSA_KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAr+ZaQ/SI8xIr5BtMCh7gizoH/cVzEi8tCxwvHOu5eELzxl1FBwUH5/pRzMI31w1+WlYXBCYQSvcWgpLlAZn7VaJYCxUE9K9gMxLPmk81fUec8sFr5hSj6cPL3hWdk4CgdJ0M2Q/GNJExvbDsiFMFb/p9jnrKhHQ47mhT4HpMLTE4fG5+AB3liJZhaUo9lbHfmhpmpps9o1tE1z7YcIO4ckvCklxF+04mVRjKur3lcezh2i4TXjMGmkDgU7pTrwf9OM9rDo5dSpsAK/dGWlBT01jhv69wOfUitcYENAK07Tgyoti3pEYD3b2ugxQ0fe0LqoxFa//O540PjMhxEbmuQQ== xxx@yyy";
 
-    private static final String PRIVATE_KEY =
+    private static final String PRIVATE_RSA_KEY =
             "-----BEGIN RSA PRIVATE KEY-----\n" +
             "MIIEogIBAAKCAQEAr+ZaQ/SI8xIr5BtMCh7gizoH/cVzEi8tCxwvHOu5eELzxl1F\n" +
             "BwUH5/pRzMI31w1+WlYXBCYQSvcWgpLlAZn7VaJYCxUE9K9gMxLPmk81fUec8sFr\n" +
@@ -77,6 +86,22 @@ public class TheTest extends HudsonTestCase {
             "Qob9zCG3CPQmu7I3dWp1rDUu2ZickE7rISRfo2N9TXWlkJ7ZjhSmQ2gnYgPQ6YGU\n" +
             "LUNVNqTdfk2S8M+BM94pRqVgLSHHvwnqmMdoe7Ul3h2fk9CtNIw=\n" +
             "-----END RSA PRIVATE KEY-----";
+
+    private static final String PUBLIC_DSA_KEY = "ssh-dss AAAAB3NzaC1kc3MAAACBANmOhJjtmkkhF+Z9TTz1Y1/7pta/ZzNdY0h71T5DsD2WJb2cDGD+11oPxKiejCpDh4kQ5lDBUIHAfIcCoaFFkr85G89H5wTfoBethwmVnmVIzxUwGDh4VKMDF+meNlNh26a0h/0e00lOodIJvUz/2u7U7KTVrSrgtSZkAOLIWxK7AAAAFQDlI+2Ug32bB3xWpKmF5DqW67F82QAAAIAR85ga/Cz2wlvJSPqIxqm3ZS9LY5jvubA0mYH1XwYRZEWfYcI0j5NAfUCdv2RncFdeyo6ZIcREtu1uLU8rTqIcucgcRjMdrgDreN+ImyQKDkwH160if+PbsulG7bCZnl01Pp5YegUuAQknEqtg6cJg3N6is6BlsHv3elNzZITTsAAAAIEAinzZ44EogFDIajB/SqZ2xaJRubePnJuMXxjDh0RypZHQMNYKsf8NdE6ocrKMHw2Etg9CSZyaATpAuBZ3oNipuS+uJCk+i9Oc5oom8umowTUE7aGZtDnIMRBlL/MyOUPwoBNohUhSWDkI+CCu9qUhz160Q3ErYztyyB3CVaFBNSk= xxx@yyy";
+
+    private static final String PRIVATE_DSA_KEY =
+            "-----BEGIN DSA PRIVATE KEY-----\n" +
+            "MIIBvAIBAAKBgQDZjoSY7ZpJIRfmfU089WNf+6bWv2czXWNIe9U+Q7A9liW9nAxg\n" +
+            "/tdaD8SonowqQ4eJEOZQwVCBwHyHAqGhRZK/ORvPR+cE36AXrYcJlZ5lSM8VMBg4\n" +
+            "eFSjAxfpnjZTYdumtIf9HtNJTqHSCb1M/9ru1Oyk1a0q4LUmZADiyFsSuwIVAOUj\n" +
+            "7ZSDfZsHfFakqYXkOpbrsXzZAoGAEfOYGvws9sJbyUj6iMapt2UvS2OY77mwNJmB\n" +
+            "9V8GEWRFn2HCNI+TQH1Anb9kZ3BXXsqOmSHERLbtbi1PK06iHLnIHEYzHa4A63jf\n" +
+            "iJskCg5MB9etIn/j27LpRu2wmZ5dNT6eWHoFLgEJJxKrYOnCYNzeorOgZbB793pT\n" +
+            "c2SE07ACgYEAinzZ44EogFDIajB/SqZ2xaJRubePnJuMXxjDh0RypZHQMNYKsf8N\n" +
+            "dE6ocrKMHw2Etg9CSZyaATpAuBZ3oNipuS+uJCk+i9Oc5oom8umowTUE7aGZtDnI\n" +
+            "MRBlL/MyOUPwoBNohUhSWDkI+CCu9qUhz160Q3ErYztyyB3CVaFBNSkCFQDlBLXW\n" +
+            "2eADfc6ZtDWcqfGCGbyvJg==\n" +
+            "-----END DSA PRIVATE KEY-----";
 
     private static class GetCurrentUser implements Callable<String, Exception> {
         public String call() throws Exception {
