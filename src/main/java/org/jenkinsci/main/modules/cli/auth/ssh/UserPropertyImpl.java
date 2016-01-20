@@ -10,7 +10,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.security.PublicKey;
 
+import hudson.util.FormValidation;
+import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -54,6 +57,17 @@ public class UserPropertyImpl extends UserProperty {
 
         public UserProperty newInstance(User user) {
             return null;
+        }
+
+        @SuppressWarnings("unused")
+        public FormValidation doCheckAuthorizedKeys(@QueryParameter String authorizedKeys, @AncestorInPath User currentUser) {
+            for (User user: User.getAll()) {
+                UserPropertyImpl userPropertyImpl = user.getProperty(UserPropertyImpl.class);
+                if (userPropertyImpl!=null && !authorizedKeys.isEmpty() && user!=currentUser && userPropertyImpl.authorizedKeys.equals(authorizedKeys)) {
+                    return FormValidation.error("There is at least one user with the same SSH public Key");
+                }
+            }
+            return FormValidation.ok();
         }
     }
 
