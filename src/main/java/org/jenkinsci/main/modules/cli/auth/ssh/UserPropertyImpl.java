@@ -63,11 +63,24 @@ public class UserPropertyImpl extends UserProperty {
         public FormValidation doCheckAuthorizedKeys(@QueryParameter String authorizedKeys, @AncestorInPath User currentUser) {
             for (User user: User.getAll()) {
                 UserPropertyImpl userPropertyImpl = user.getProperty(UserPropertyImpl.class);
-                if (userPropertyImpl!=null && !authorizedKeys.isEmpty() && user!=currentUser && userPropertyImpl.authorizedKeys.equals(authorizedKeys)) {
+                if (!authorizedKeys.isEmpty() && userPropertyImpl!=null && userPropertyImpl.authorizedKeys!=null && user!=currentUser && checkReapeatedAuthorizedKeys(authorizedKeys, userPropertyImpl)) {
                     return FormValidation.error("There is at least one user with the same SSH public Key");
                 }
             }
             return FormValidation.ok();
+        }
+
+        private boolean checkReapeatedAuthorizedKeys(String userAuthorizedKeys, UserPropertyImpl userPropertyImpl) {
+            String[] splittedUserAuthorizedKeys = userAuthorizedKeys.split("\\r?\\n");
+            String[] splittedAuthorizedKeys = userPropertyImpl.authorizedKeys.split("\\r?\\n");
+            for (String userAuthorizedKey : splittedUserAuthorizedKeys) {
+                for (String authorizedKey : splittedAuthorizedKeys) {
+                    if(userAuthorizedKey.equals(authorizedKey)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 
