@@ -3,9 +3,9 @@ package org.jenkinsci.main.modules.cli.auth.ssh;
 import hudson.cli.CLI;
 import hudson.cli.CLICommand;
 import hudson.model.User;
-import hudson.remoting.Callable;
 
 import java.util.Collections;
+import jenkins.security.MasterToSlaveCallable;
 
 import org.jvnet.hudson.test.HudsonTestCase;
 import org.jvnet.hudson.test.TestExtension;
@@ -37,6 +37,7 @@ public class TheTest extends HudsonTestCase {
     }
 
     private void testRoundtrip(String privateKey, String publicKey) throws Exception {
+        jenkins.setSecurityRealm(createDummySecurityRealm());
         User foo = User.get("foo");
         foo.addProperty(new UserPropertyImpl(publicKey));
         configRoundtrip(foo);
@@ -103,7 +104,7 @@ public class TheTest extends HudsonTestCase {
             "2eADfc6ZtDWcqfGCGbyvJg==\n" +
             "-----END DSA PRIVATE KEY-----";
 
-    private static class GetCurrentUser implements Callable<String, Exception> {
+    private static class GetCurrentUser extends MasterToSlaveCallable<String, Exception> {
         public String call() throws Exception {
             return User.current().getId();
         }
