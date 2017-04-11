@@ -3,7 +3,8 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.448</version>
+    <version>2.25</version>
+    <relativePath />
   </parent>
 
   <groupId>org.jenkins-ci.modules</groupId>
@@ -11,26 +12,9 @@
   <version>1.4-SNAPSHOT</version>
   <packaging>jenkins-module</packaging>
   <name>SSH CLI client authenticator</name>
-  <description>Use the SSH private key on the client to authenticate the CLI clients</description>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.jenkins-ci.tools</groupId>
-        <artifactId>maven-hpi-plugin</artifactId>
-        <version>1.79</version>
-        <extensions>true</extensions>
-      </plugin>
-    </plugins>
-  </build>
+  <description>Defines the SSH public key user property, and allows SSH-based authentication of CLI clients.</description>
 
   <dependencies>
-    <dependency>
-      <groupId>org.jenkins-ci.main</groupId>
-      <artifactId>jenkins-core</artifactId>
-      <version>1.448</version>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>org.jenkins-ci.modules</groupId>
       <artifactId>instance-identity</artifactId>
@@ -52,25 +36,15 @@
 
   <repositories>
     <repository>
-      <id>m.g.o-public</id>
-      <url>http://maven.glassfish.org/content/groups/public/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>maven.jenkins-ci.org</id>
-      <url>http://maven.jenkins-ci.org/content/repositories/snapshots/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
+      <id>repo.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org</url>
     </repository>
   </repositories>
+  <pluginRepositories>
+      <pluginRepository>
+          <id>repo.jenkins-ci.org</id>
+          <url>https://repo.jenkins-ci.org</url>
+      </pluginRepository>
+  </pluginRepositories>
 
 </project>
