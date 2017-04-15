@@ -23,13 +23,16 @@
  */
 package org.jenkinsci.main.modules.cli.auth.ssh;
 
+import hudson.remoting.Base64;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.PublicKey;
 import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
-
-import com.trilead.ssh2.crypto.Base64;
-import com.trilead.ssh2.packets.TypesWriter;
 
 public class PublicKeySignatureWriter {
 
@@ -40,25 +43,69 @@ public class PublicKeySignatureWriter {
     }
 
     public String asString(DSAPublicKey key) {
-        TypesWriter tw = new TypesWriter();
+        PemWriter tw = new PemWriter();
         tw.writeString("ssh-dss");
         DSAParams p = key.getParams();
-        tw.writeMPInt(p.getP());
-        tw.writeMPInt(p.getQ());
-        tw.writeMPInt(p.getG());
-        tw.writeMPInt(key.getY());
+        tw.writeBigInt(p.getP());
+        tw.writeBigInt(p.getQ());
+        tw.writeBigInt(p.getG());
+        tw.writeBigInt(key.getY());
         return encode(tw);
     }
 
     public String asString(RSAPublicKey key) {
-        TypesWriter tw = new TypesWriter();
+        PemWriter tw = new PemWriter();
         tw.writeString("ssh-rsa");
-        tw.writeMPInt(key.getPublicExponent());
-        tw.writeMPInt(key.getModulus());
+        tw.writeBigInt(key.getPublicExponent());
+        tw.writeBigInt(key.getModulus());
         return encode(tw);
     }
 
-    private String encode(TypesWriter tw) {
-        return new String(Base64.encode(tw.getBytes()));
+    private String encode(PemWriter tw) {
+        return Base64.encode(tw.getBytes());
+    }
+
+    private static class PemWriter {
+        private final ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+
+        private byte[] getBytes() {
+            return byteOutputStream.toByteArray();
+        }
+
+        private void writeString(String value) {
+            byte[] bytes = value.getBytes(StandardCharsets.ISO_8859_1);
+            writeBytes(bytes);
+        }
+
+        private void writeBigInt(BigInteger bigInteger) {
+            byte bytes[] = bigInteger.toByteArray();
+
+            if ((bytes.length == 1) && (bytes[0] == 0)) {
+                writeUnsigned32BitInt(0);
+            } else {
+                writeBytes(bytes);
+            }
+        }
+
+        private void writeUnsigned32BitInt(int value) {
+            byteOutputStream.write((byte) (value >> 24));
+            byteOutputStream.write((byte) (value >> 16));
+            byteOutputStream.write((byte) (value >> 8));
+            byteOutputStream.write((byte) value);
+        }
+
+
+        private void writeBytes(byte[] bytes) {
+            writeUnsigned32BitInt(bytes.length);
+            try {
+                byteOutputStream.write(bytes);
+            } catch (IOException e) {
+                //impossible
+                throw new Error(e);
+            }
+        }
+
+
+
     }
 }
