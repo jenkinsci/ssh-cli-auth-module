@@ -17,7 +17,7 @@
   <properties>
     <revision>1.5</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.150.2</jenkins.version>
+    <jenkins.version>2.150.2</jenkins.version> <!-- TODO pick up first weekly containing https://github.com/jenkinsci/jenkins/pull/3838 -->
     <java.level>8</java.level>
   </properties>
 
