@@ -9,12 +9,14 @@
 
   <groupId>org.jenkins-ci.modules</groupId>
   <artifactId>ssh-cli-auth</artifactId>
-  <version>1.5-SNAPSHOT</version>
+  <version>${revision}${changelist}</version>
   <packaging>jenkins-module</packaging>
   <name>SSH CLI client authenticator</name>
   <description>Defines the SSH public key user property, and allows SSH-based authentication of CLI clients.</description>
 
   <properties>
+    <revision>1.5</revision>
+    <changelist>-SNAPSHOT</changelist>
     <jenkins.version>2.150.2</jenkins.version>
   </properties>
 
@@ -29,7 +31,7 @@
   <scm>
     <connection>scm:git:git://github.com/jenkinsci/ssh-cli-auth-module.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/jenkinsci/ssh-cli-auth-module.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>${scmTag}</tag>
   </scm>
 
   <licenses>
