@@ -4,6 +4,7 @@ import hudson.model.User;
 import hudson.util.FormValidation;
 import static org.junit.Assert.*;
 import org.junit.Rule;
+import org.junit.Test;
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
 
@@ -11,15 +12,17 @@ public class TheTest {
 
     @Rule public JenkinsRule r = new JenkinsRule();
 
-    public void testRsa() throws Exception {
-        testRoundtrip(PRIVATE_RSA_KEY, PUBLIC_RSA_KEY);
+    @Test
+    public void rsa() throws Exception {
+        testRoundtrip(PUBLIC_RSA_KEY);
     }
 
-    public void testDsa() throws Exception {
-        testRoundtrip(PRIVATE_DSA_KEY, PUBLIC_DSA_KEY);
+    @Test
+    public void dsa() throws Exception {
+        testRoundtrip(PUBLIC_DSA_KEY);
     }
 
-    private void testRoundtrip(String privateKey, String publicKey) throws Exception {
+    private void testRoundtrip(String publicKey) throws Exception {
         r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
         User foo = User.get("foo");
         foo.addProperty(new UserPropertyImpl(publicKey));
@@ -29,6 +32,7 @@ public class TheTest {
     }
 
     @Issue("JENKINS-16337")
+    @Test
     public void testDoCheckAuthorizedKeys() throws Exception {
         assertCheckOK(FormValidation.Kind.OK, "");
         assertCheckOK(FormValidation.Kind.OK, PUBLIC_DSA_KEY);
