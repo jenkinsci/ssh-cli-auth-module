@@ -1,34 +1,15 @@
 package org.jenkinsci.main.modules.cli.auth.ssh;
 
-import hudson.cli.CLI;
-import hudson.cli.CLICommand;
 import hudson.model.User;
 import hudson.util.FormValidation;
-
-import java.util.Collections;
-import jenkins.security.MasterToSlaveCallable;
-
-import org.jvnet.hudson.test.HudsonTestCase;
+import static org.junit.Assert.*;
+import org.junit.Rule;
 import org.jvnet.hudson.test.Issue;
-import org.jvnet.hudson.test.TestExtension;
+import org.jvnet.hudson.test.JenkinsRule;
 
-/**
- * @author Kohsuke Kawaguchi
- */
-public class TheTest extends HudsonTestCase {
+public class TheTest {
 
-    @TestExtension
-    public static class TestCommand extends CLICommand {
-        @Override
-        public String getShortDescription() {
-            return "test";
-        }
-
-        @Override
-        protected int run() throws Exception {
-            return User.current().getId().equals("foo")?0:1;
-        }
-    }
+    @Rule public JenkinsRule r = new JenkinsRule();
 
     public void testRsa() throws Exception {
         testRoundtrip(PRIVATE_RSA_KEY, PUBLIC_RSA_KEY);
@@ -39,24 +20,12 @@ public class TheTest extends HudsonTestCase {
     }
 
     private void testRoundtrip(String privateKey, String publicKey) throws Exception {
-        jenkins.setSecurityRealm(createDummySecurityRealm());
+        r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
         User foo = User.get("foo");
         foo.addProperty(new UserPropertyImpl(publicKey));
-        configRoundtrip(foo);
+        r.configRoundtrip(foo);
         assertEquals(publicKey, foo.getProperty(UserPropertyImpl.class).authorizedKeys);
-
-        CLI cli = new CLI(getURL());
-        try {
-            cli.authenticate(Collections.singleton(CLI.loadKey(privateKey)));
-            assertEquals(0, cli.execute("test"));
-
-            // closures executed with this channel should automatically carry the credential
-            // now that it's authenticated
-            cli.upgrade();
-            assertEquals("foo", cli.getChannel().call(new GetCurrentUser()));
-        } finally {
-            cli.close();
-        }
+        // integration testing w/ sshd-module is in hudson.cli.CLITest.strictHostKey in core
     }
 
     @Issue("JENKINS-16337")
@@ -68,8 +37,8 @@ public class TheTest extends HudsonTestCase {
         assertCheckOK(FormValidation.Kind.WARNING, PRIVATE_RSA_KEY);
     }
     private void assertCheckOK(FormValidation.Kind kind, String value) throws Exception {
-        FormValidation r = jenkins.getDescriptorByType(UserPropertyImpl.DescriptorImpl.class).doCheckAuthorizedKeys(value);
-        assertEquals("check of ‘" + value + "’: " + r.renderHtml(), kind, r.kind);
+        FormValidation fv = r.jenkins.getDescriptorByType(UserPropertyImpl.DescriptorImpl.class).doCheckAuthorizedKeys(value);
+        assertEquals("check of ‘" + value + "’: " + fv.renderHtml(), kind, fv.kind);
     }
 
     private static final String PUBLIC_RSA_KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAr+ZaQ/SI8xIr5BtMCh7gizoH/cVzEi8tCxwvHOu5eELzxl1FBwUH5/pRzMI31w1+WlYXBCYQSvcWgpLlAZn7VaJYCxUE9K9gMxLPmk81fUec8sFr5hSj6cPL3hWdk4CgdJ0M2Q/GNJExvbDsiFMFb/p9jnrKhHQ47mhT4HpMLTE4fG5+AB3liJZhaUo9lbHfmhpmpps9o1tE1z7YcIO4ckvCklxF+04mVRjKur3lcezh2i4TXjMGmkDgU7pTrwf9OM9rDo5dSpsAK/dGWlBT01jhv69wOfUitcYENAK07Tgyoti3pEYD3b2ugxQ0fe0LqoxFa//O540PjMhxEbmuQQ== xxx@yyy";
@@ -119,9 +88,4 @@ public class TheTest extends HudsonTestCase {
             "2eADfc6ZtDWcqfGCGbyvJg==\n" +
             "-----END DSA PRIVATE KEY-----";
 
-    private static class GetCurrentUser extends MasterToSlaveCallable<String, Exception> {
-        public String call() throws Exception {
-            return User.current().getId();
-        }
-    }
 }
