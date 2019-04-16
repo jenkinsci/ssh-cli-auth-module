@@ -10,14 +10,14 @@
   <groupId>org.jenkins-ci.modules</groupId>
   <artifactId>ssh-cli-auth</artifactId>
   <version>${revision}${changelist}</version>
-  <packaging>jenkins-module</packaging>
+  <packaging>hpi</packaging>
   <name>SSH CLI client authenticator</name>
   <description>Defines the SSH public key user property.</description>
 
   <properties>
-    <revision>1.6</revision>
+    <revision>2.0</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.165</jenkins.version>
+    <jenkins.version>2.174-rc28240.3dc04f96ae74</jenkins.version> <!-- TODO first after 2.173 -->
     <java.level>8</java.level>
   </properties>
 
@@ -25,7 +25,7 @@
     <dependency>
       <groupId>org.jenkins-ci.modules</groupId>
       <artifactId>instance-identity</artifactId>
-      <version>2.2</version>
+      <version>3.0-rc89.7cefd031c403</version> <!-- TODO https://github.com/jenkinsci/instance-identity-module/pull/17 -->
     </dependency>
   </dependencies>
 
