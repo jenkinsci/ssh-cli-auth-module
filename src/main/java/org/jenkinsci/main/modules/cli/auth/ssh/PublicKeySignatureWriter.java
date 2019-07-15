@@ -23,13 +23,15 @@
  */
 package org.jenkinsci.main.modules.cli.auth.ssh;
 
-import java.security.PublicKey;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.PublicKey;
+import java.util.Objects;
 
-import com.trilead.ssh2.crypto.Base64;
-import com.trilead.ssh2.packets.TypesWriter;
 
 public class PublicKeySignatureWriter {
 
@@ -40,25 +42,30 @@ public class PublicKeySignatureWriter {
     }
 
     public String asString(DSAPublicKey key) {
-        TypesWriter tw = new TypesWriter();
-        tw.writeString("ssh-dss");
-        DSAParams p = key.getParams();
-        tw.writeMPInt(p.getP());
-        tw.writeMPInt(p.getQ());
-        tw.writeMPInt(p.getG());
-        tw.writeMPInt(key.getY());
-        return encode(tw);
+        try {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            DSAParams keyParams = Objects.requireNonNull(key.getParams(), "No DSA params available");
+            KeyEncodeHelper.encodeString(output, "ssh-dss", StandardCharsets.UTF_8);
+            KeyEncodeHelper.encodeBigInt(output, keyParams.getP());
+            KeyEncodeHelper.encodeBigInt(output, keyParams.getQ());
+            KeyEncodeHelper.encodeBigInt(output, keyParams.getG());
+            KeyEncodeHelper.encodeBigInt(output, key.getY());
+            return new String(output.toByteArray(), StandardCharsets.UTF_8);
+        } catch(IOException e) {
+            throw new PublicKeySignatureWriterException(e);
+        }
     }
 
     public String asString(RSAPublicKey key) {
-        TypesWriter tw = new TypesWriter();
-        tw.writeString("ssh-rsa");
-        tw.writeMPInt(key.getPublicExponent());
-        tw.writeMPInt(key.getModulus());
-        return encode(tw);
+        try {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            KeyEncodeHelper.encodeString(output, "ssh-rsa", StandardCharsets.UTF_8);
+            KeyEncodeHelper.encodeBigInt(output, key.getPublicExponent());
+            KeyEncodeHelper.encodeBigInt(output, key.getModulus());
+            return new String(output.toByteArray(), StandardCharsets.UTF_8);
+        } catch(IOException e) {
+            throw new PublicKeySignatureWriterException(e);
+        }
     }
 
-    private String encode(TypesWriter tw) {
-        return new String(Base64.encode(tw.getBytes()));
-    }
 }
