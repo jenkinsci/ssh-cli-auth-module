@@ -52,7 +52,7 @@ public class PublicKeySignatureWriter {
             KeyEncodeHelper.encodeBigInt(output, key.getY());
             return new String(output.toByteArray(), StandardCharsets.UTF_8);
         } catch(IOException e) {
-            throw new Error(e);
+            throw new PublicKeySignatureWriterException(e);
         }
     }
 
@@ -64,7 +64,7 @@ public class PublicKeySignatureWriter {
             KeyEncodeHelper.encodeBigInt(output, key.getModulus());
             return new String(output.toByteArray(), StandardCharsets.UTF_8);
         } catch(IOException e) {
-            throw new Error(e);
+            throw new PublicKeySignatureWriterException(e);
         }
     }
 
