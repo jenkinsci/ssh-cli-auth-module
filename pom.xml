@@ -30,8 +30,14 @@
     <dependency>
       <groupId>org.jenkins-ci</groupId>
       <artifactId>trilead-ssh2</artifactId>
-      <version>build214-jenkins-1</version>
+      <version>build-217-jenkins-14</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>net.i2p.crypto</groupId>
+          <artifactId>eddsa</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 
