@@ -1,0 +1,2 @@
+_extends: .github
+tag-template: ssh-cli-auth-$NEXT_MINOR_VERSION
