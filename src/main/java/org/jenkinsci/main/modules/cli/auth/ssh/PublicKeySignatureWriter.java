@@ -23,6 +23,8 @@
  */
 package org.jenkinsci.main.modules.cli.auth.ssh;
 
+import org.apache.commons.codec.binary.Base64;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -45,12 +47,12 @@ public class PublicKeySignatureWriter {
         try {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             DSAParams keyParams = Objects.requireNonNull(key.getParams(), "No DSA params available");
-            KeyEncodeHelper.encodeString(output, "ssh-dss", StandardCharsets.UTF_8);
+            KeyEncodeHelper.encodeString(output, "ssh-dss", StandardCharsets.ISO_8859_1);
             KeyEncodeHelper.encodeBigInt(output, keyParams.getP());
             KeyEncodeHelper.encodeBigInt(output, keyParams.getQ());
             KeyEncodeHelper.encodeBigInt(output, keyParams.getG());
             KeyEncodeHelper.encodeBigInt(output, key.getY());
-            return new String(output.toByteArray(), StandardCharsets.UTF_8);
+            return Base64.encodeBase64String(output.toByteArray());
         } catch(IOException e) {
             throw new PublicKeySignatureWriterException(e);
         }
@@ -59,10 +61,10 @@ public class PublicKeySignatureWriter {
     public String asString(RSAPublicKey key) {
         try {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            KeyEncodeHelper.encodeString(output, "ssh-rsa", StandardCharsets.UTF_8);
+            KeyEncodeHelper.encodeString(output, "ssh-rsa", StandardCharsets.ISO_8859_1);
             KeyEncodeHelper.encodeBigInt(output, key.getPublicExponent());
             KeyEncodeHelper.encodeBigInt(output, key.getModulus());
-            return new String(output.toByteArray(), StandardCharsets.UTF_8);
+            return Base64.encodeBase64String(output.toByteArray());
         } catch(IOException e) {
             throw new PublicKeySignatureWriterException(e);
         }
