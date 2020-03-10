@@ -34,13 +34,6 @@ public class UserPropertyImpl extends UserProperty {
         return isAuthorizedKey(signature.asString(pk));
     }
 
-    /**
-     * Gets the users authorized keys
-     */
-    public String getAuthorizedKeys() {
-        return authorizedKeys;
-    }
-
     public boolean isAuthorizedKey(String sig) {
         try {
             final BufferedReader r = new BufferedReader(new StringReader(authorizedKeys));
