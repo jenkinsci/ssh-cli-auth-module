@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.security.PublicKey;
 
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
@@ -49,6 +50,7 @@ public class UserPropertyImpl extends UserProperty {
     }
 
     @Extension
+    @Symbol("sshPublicKey")
     public static final class DescriptorImpl extends UserPropertyDescriptor {
         public String getDisplayName() {
             return "SSH Public Keys";
